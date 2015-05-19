@@ -46,12 +46,18 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Enums.cs" />
+     <Compile Include="Assets\Scripts\HUD.cs" />
      <Compile Include="Assets\Scripts\Not In Use Scripts\cameraControl.cs" />
      <Compile Include="Assets\Scripts\Not In Use Scripts\moveToClick.cs" />
      <Compile Include="Assets\Scripts\Not In Use Scripts\selectObject.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Building.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Unit.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\WorldObject.cs" />
      <Compile Include="Assets\Scripts\resourceManager.cs" />
      <Compile Include="Assets\Scripts\userInput.cs" />
+     <Compile Include="Assets\Scripts\workManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

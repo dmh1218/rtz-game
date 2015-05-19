@@ -29,6 +29,7 @@ public class userInput : MonoBehaviour
 		if (player.human) {
 			moveCamera();
 			rotateCamera();
+			mouseActivity();
 		}
 	}
 
@@ -37,19 +38,28 @@ public class userInput : MonoBehaviour
 		xpos = Input.mousePosition.x;
 		ypos = Input.mousePosition.y;
 		Vector3 movement = new Vector3 (0, 0, 0);
+		bool mouseScroll = false;
 
 		//horizontal camera movement
 		if ((xpos >= 0 && xpos < resourceManager.scrollwidth) || ((Input.GetKey (KeyCode.A)))) {
 			movement.x -= resourceManager.scrollSpeed;
+			player.hud.setCursorState(cursorState.PanLeft);
+			mouseScroll = true;
 		} else if ((xpos <= Screen.width && xpos > Screen.width - resourceManager.scrollwidth) || ((Input.GetKey (KeyCode.D)))) {
 			movement.x += resourceManager.scrollSpeed;
+			player.hud.setCursorState(cursorState.PanRight);
+			mouseScroll = true;
 		}
 
 		//vertical camera movement
 		if ((ypos >= 0 && ypos < resourceManager.scrollwidth) || ((Input.GetKey (KeyCode.S)))) {
 			movement.z -= resourceManager.scrollSpeed;
+			player.hud.setCursorState(cursorState.PanDown);
+			mouseScroll = true;
 		} else if ((ypos <= Screen.height && ypos > Screen.height - resourceManager.scrollwidth) || ((Input.GetKey (KeyCode.W)))) {
 			movement.z += resourceManager.scrollSpeed;
+			player.hud.setCursorState(cursorState.PanUp);
+			mouseScroll = true;
 		}
 
 		//make sure movement is in the direction the camera is pointing 
@@ -77,6 +87,10 @@ public class userInput : MonoBehaviour
 		//if a change in position is detected, perform the necessary update
 		if (destination != origin) {
 			Camera.main.transform.position = Vector3.MoveTowards (origin, destination, Time.deltaTime * resourceManager.scrollSpeed);
+		}
+
+		if (!mouseScroll) {
+			player.hud.setCursorState (cursorState.Select);
 		}
 	}
 
@@ -121,6 +135,87 @@ public class userInput : MonoBehaviour
 		x = Mathf.Clamp (x, zoomAngleRange.x, zoomAngleRange.y);
 		
 		transform.eulerAngles = new Vector3 (x, transform.eulerAngles.y, transform.eulerAngles.z);
+	}
+
+	private void mouseActivity()
+	{
+		if (Input.GetMouseButtonDown (0)) {
+			leftMouseClick ();
+		} else if (Input.GetMouseButtonDown (1)) {
+			rightMouseClick ();
+		}
+		mouseHover ();
+	}
+
+	private void leftMouseClick()
+	{
+		if (player.hud.mouseInBounds ()) {
+			GameObject hitObject = findHitObject ();
+			Vector3 hitPoint = findHitPoint ();
+			if (hitObject && hitPoint != resourceManager.InvalidPosition) {
+				if (player.selectedObject) {
+					player.selectedObject.mouseClick (hitObject, hitPoint, player);
+				} else if (hitObject.name != "Ground") {
+					WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
+					if (worldObject) {
+						//we already know the player has no selected object
+						player.selectedObject = worldObject;
+						worldObject.SetSelection (true, player.hud.getPlayingArea());
+					}
+				}
+			}
+		}
+	}
+
+	private void rightMouseClick()
+	{
+		if (player.hud.mouseInBounds () /*&& !Input.GetKey (KeyCode.LeftAlt)*/ && player.selectedObject) {
+			player.selectedObject.SetSelection (false, player.hud.getPlayingArea());
+			player.selectedObject = null;
+		}
+	}
+
+	private GameObject findHitObject()
+	{
+		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+		RaycastHit hit;
+		if (Physics.Raycast (ray, out hit)) {
+			return hit.collider.gameObject;
+		} else {
+			return null;
+		}
+	}
+
+	private Vector3 findHitPoint()
+	{
+		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+		RaycastHit hit;
+		if (Physics.Raycast (ray, out hit)) {
+			return hit.point;
+		} else {
+			return resourceManager.InvalidPosition;
+		}
+	}
+
+	private void mouseHover()
+	{
+		if (player.hud.mouseInBounds ()) {
+			GameObject hoverObject = findHitObject ();
+			if (hoverObject) {
+				if (player.selectedObject) {
+					player.selectedObject.setHoverState (hoverObject);
+				} else if (hoverObject.name != "Ground") {
+					Player owner = hoverObject.transform.root.GetComponent<Player> ();
+					if (owner) {
+						Unit unit = hoverObject.transform.root.GetComponent<Unit> ();
+						Building building = hoverObject.transform.root.GetComponent<Building> ();
+						if (owner.username == player.username && (unit || building)) {
+							player.hud.setCursorState (cursorState.Select);
+						}
+					}
+				}
+			}
+		}
 	}
 
 }
