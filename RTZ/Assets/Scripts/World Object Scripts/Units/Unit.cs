@@ -51,10 +51,25 @@ public class Unit : WorldObject
 		}
 	}
 
-	public override void mouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
+//	public override void mouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
+//	{
+//		base.mouseClick (hitObject, hitPoint, controller);
+//		//only handle input if owned by a human player and currently selected
+//		if (player && player.human && currentlySelected) {
+//			if (hitObject.name == "Ground" && hitPoint != resourceManager.InvalidPosition) {
+//				float x = hitPoint.x;
+//				//make sure that the unit stays on top of the surface it is on
+//				float y = hitPoint.y + player.selectedObject.transform.position.y;
+//				float z = hitPoint.z;
+//				Vector3 destination = new Vector3 (x, y, z);
+//				startMove (destination);
+//			}
+//		}
+//	}
+
+	public override void rightMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
 	{
-		base.mouseClick (hitObject, hitPoint, controller);
-		//only handle input if owned by a human player and currently selected
+		base.rightMouseClick (hitObject, hitPoint, controller);
 		if (player && player.human && currentlySelected) {
 			if (hitObject.name == "Ground" && hitPoint != resourceManager.InvalidPosition) {
 				float x = hitPoint.x;

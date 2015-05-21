@@ -154,7 +154,14 @@ public class userInput : MonoBehaviour
 			Vector3 hitPoint = findHitPoint ();
 			if (hitObject && hitPoint != resourceManager.InvalidPosition) {
 				if (player.selectedObject) {
-					player.selectedObject.mouseClick (hitObject, hitPoint, player);
+//					player.selectedObject.mouseClick (hitObject, hitPoint, player);
+					player.selectedObject.leftMouseClick (hitObject, hitPoint, player);
+					if (hitObject.name == "Ground") {
+						if (player.hud.mouseInBounds() && player.selectedObject) {
+							player.selectedObject.SetSelection(false, player.hud.getPlayingArea());
+							player.selectedObject = null;
+						}
+					}
 				} else if (hitObject.name != "Ground") {
 					WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
 					if (worldObject) {
@@ -162,17 +169,25 @@ public class userInput : MonoBehaviour
 						player.selectedObject = worldObject;
 						worldObject.SetSelection (true, player.hud.getPlayingArea());
 					}
-				}
+				} 
 			}
 		}
 	}
 
 	private void rightMouseClick()
 	{
-		if (player.hud.mouseInBounds () /*&& !Input.GetKey (KeyCode.LeftAlt)*/ && player.selectedObject) {
-			player.selectedObject.SetSelection (false, player.hud.getPlayingArea());
-			player.selectedObject = null;
+		GameObject hitObject = findHitObject ();
+		Vector3 hitPoint = findHitPoint ();
+
+		if (hitObject && hitPoint != resourceManager.InvalidPosition) {
+			if (player.selectedObject) {
+				player.selectedObject.rightMouseClick (hitObject, hitPoint, player);
+			}
 		}
+//		if (player.hud.mouseInBounds () && player.selectedObject) {
+//			player.selectedObject.SetSelection (false, player.hud.getPlayingArea());
+//			player.selectedObject = null;
+//		}
 	}
 
 	private GameObject findHitObject()
