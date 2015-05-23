@@ -8,12 +8,14 @@ public class HUD : MonoBehaviour
 	public GUISkin resourceSkin;
 	public GUISkin selectBoxSkin;
 	public GUISkin mouseCursorSkin;
+	public Texture2D healthy, damaged, critical;
 	public Texture2D buttonHover, buttonClick, smallButtonHover, smallButtonClick, buildFrame, buildMask;
 	public Texture2D activeCursor, selectCursor, leftCursor, rightCursor, upCursor, downCursor, rallyPointCursor;
 	public Texture2D[] moveCursors;
 	public Texture2D[] attackCursors;
 	public Texture2D[] harvestCursors;
 	public Texture2D[] resources;
+	public Texture2D[] resourceHealthBars;
 	
 	private static int ordersBarWidth = 150;
 	private static int resourceBarHeight = 40;
@@ -43,7 +45,7 @@ public class HUD : MonoBehaviour
 		resourceValues = new Dictionary< resourceType, int > ();
 		resourceLimits = new Dictionary< resourceType, int > ();
 		player = transform.root.GetComponent<Player> ();
-		resourceManager.storeSelectBoxItems (selectBoxSkin);
+		resourceManager.storeSelectBoxItems (selectBoxSkin, healthy, damaged, critical);
 		setCursorState (cursorState.Select);
 
 		resourceImages = new Dictionary<resourceType, Texture2D> ();
@@ -65,6 +67,18 @@ public class HUD : MonoBehaviour
 		}
 
 		buildAreaHeight = Screen.height - resourceBarHeight - selectionNameHeight - 2 * buttonSpacing;
+
+		Dictionary<resourceType, Texture2D> resourceHealthBarTextures = new Dictionary<resourceType, Texture2D> ();
+		for (int i = 0; i < resourceHealthBars.Length; i++) {
+			switch (resourceHealthBars [i].name) {
+			case "ore":
+				resourceHealthBarTextures.Add (resourceType.Ore, resourceHealthBars [i]);
+				break;
+			default:
+				break;
+			}
+		}
+		resourceManager.setResourceHealthBarTextures (resourceHealthBarTextures);
 	}
 
 	void OnGUI()
@@ -217,7 +231,11 @@ public class HUD : MonoBehaviour
 		int topPos = buildAreaHeight - buildImageHeight / 2;
 		int width = buildImageWidth / 2;
 		int height = buildImageHeight / 2;
+		if (GUI.Button(new Rect(leftPos, topPos, width, height), building.sellImage)) {
+			building.sell();
+		}
 		if (building.hasSpawnPoint ()) {
+			leftPos += width + buttonSpacing;
 			if (GUI.Button (new Rect (leftPos, topPos, width, height), building.rallyPointImage)) {
 				if (activeCursorState != cursorState.RallyPoint && previousCursorState != cursorState.RallyPoint) {
 					setCursorState (cursorState.RallyPoint);

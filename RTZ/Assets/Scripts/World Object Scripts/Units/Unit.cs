@@ -9,6 +9,7 @@ public class Unit : WorldObject
 
 	private Vector3 destination;
 	private Quaternion targetRotation;
+	private GameObject destinationTarget;
 
 	public float rotateSpeed;
 	public float moveSpeed;
@@ -45,9 +46,19 @@ public class Unit : WorldObject
 		base.setHoverState (hoverObject);
 		//only handle input if owned by a human player and currently selected
 		if (player && player.human && currentlySelected) {
+			bool moveHover = false;
 			if (hoverObject.name == "Ground") {
+				moveHover = true;
+			} else {
+				Resource resource = hoverObject.transform.parent.GetComponent<Resource>();
+				if (resource && resource.isEmpty()) {
+					moveHover = true;
+				}
+			}
+			if (moveHover) {
 				player.hud.setCursorState (cursorState.Move);
 			}
+
 		}
 	}
 
@@ -70,8 +81,17 @@ public class Unit : WorldObject
 	public override void rightMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
 	{
 		base.rightMouseClick (hitObject, hitPoint, controller);
+
 		if (player && player.human && currentlySelected) {
-			if (hitObject.name == "Ground" && hitPoint != resourceManager.InvalidPosition) {
+			bool clickedOnEmptyResource = false;
+			if (hitObject.transform.parent) {
+				Resource resource = hitObject.transform.parent.GetComponent<Resource>();
+				if (resource && resource.isEmpty()) {
+					clickedOnEmptyResource = true;
+				}
+			}
+
+			if ((hitObject.name == "Ground" || clickedOnEmptyResource) && hitPoint != resourceManager.InvalidPosition) {
 				float x = hitPoint.x;
 				//make sure that the unit stays on top of the surface it is on
 				float y = hitPoint.y + player.selectedObject.transform.position.y;
@@ -82,12 +102,22 @@ public class Unit : WorldObject
 		}
 	}
 
-	public void startMove(Vector3 destination)
+
+
+	public virtual void startMove(Vector3 destination)
 	{
+
 		this.destination = destination;
+		destinationTarget = null;
 		targetRotation = Quaternion.LookRotation (destination - transform.position);
 		rotating = true;
 		moving = false;
+	}
+
+	public void startMove (Vector3 destination, GameObject destinationTarget)
+	{
+		startMove (destination);
+		this.destinationTarget = destinationTarget;
 	}
 
 	private void turnToTarget()
@@ -100,6 +130,48 @@ public class Unit : WorldObject
 			moving = true;
 		}
 		calculateBounds ();
+		if (destinationTarget) {
+			calculateTargetDestination ();
+		}
+	}
+
+	private void calculateTargetDestination()
+	{
+		//calculate number of unit vectors from unit center to unit edge of bounds
+		Vector3 originalExtents = selectionBounds.extents;
+		Vector3 normalExtents = originalExtents;
+		normalExtents.Normalize ();
+		float numberOfExtents = originalExtents.x / normalExtents.x;
+		int unitShift = Mathf.FloorToInt (numberOfExtents);
+
+		//calculate number of unit vectors from target center to target edge of bounds
+		WorldObject worldObject = destinationTarget.GetComponent<WorldObject> ();
+		if (worldObject) {
+			originalExtents = worldObject.getSelectionBounds ().extents;
+		} else {
+			originalExtents = new Vector3 (0.0f, 0.0f, 0.0f);
+		}
+		normalExtents = originalExtents;
+		normalExtents.Normalize ();
+		numberOfExtents = originalExtents.x / normalExtents.x;
+		int targetShift = Mathf.FloorToInt (numberOfExtents);
+
+		//calculate number of unit vectors between unit center and destination center with bounds just touching
+		int shiftAmount = targetShift + unitShift;
+
+		//calculate direction unit needs to travel to reach destination in straight line an normalize to unit vector
+		Vector3 origin = transform.position;
+		Vector3 direction = new Vector3 (destination.x - origin.x, 0.0f, destination.z - origin.z);
+		direction.Normalize ();
+
+		//destination = center of destination - number of unit vectors calculated above
+		//this should give us a destination where the unit will not quite collide with the target
+		//giving the illusion of moving to the edge of the target and stopping
+		for (int i = 0; i < shiftAmount; i++) {
+			destination -= direction;
+		}
+		destination.y = destinationTarget.transform.position.y;
+		destinationTarget = null;
 	}
 
 	private void makeMove()
@@ -109,5 +181,10 @@ public class Unit : WorldObject
 			moving = false;
 		}
 		calculateBounds ();
+	}
+
+	public virtual void init(Building creator)
+	{
+		//specific initialization for a unit can be specified here
 	}
 }

@@ -46,6 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Arms.cs" />
      <Compile Include="Assets\Scripts\Enums.cs" />
      <Compile Include="Assets\Scripts\GameObjectList.cs" />
      <Compile Include="Assets\Scripts\HUD.cs" />
@@ -55,8 +56,13 @@
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Building.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Buildings.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Refinery.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\WarFactory.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\RallyPoint.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\Ore.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\OreDeposit.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\Resource.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Units\Harvester.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Tank.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Unit.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Units.cs" />

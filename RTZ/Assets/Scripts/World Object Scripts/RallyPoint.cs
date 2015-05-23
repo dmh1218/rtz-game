@@ -5,7 +5,6 @@ public class RallyPoint : MonoBehaviour
 {
 	public void enable()
 	{
-		Debug.Log ("enable flag");
 		Renderer[] renderers = GetComponentsInChildren<Renderer> ();
 		foreach (Renderer renderer in renderers) {
 			renderer.enabled = true;

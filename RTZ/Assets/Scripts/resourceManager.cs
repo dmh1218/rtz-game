@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace RTS {
 	public static class resourceManager 
@@ -24,9 +24,12 @@ namespace RTS {
 		private static GUISkin selectBoxSkin;
 		public static GUISkin SelectBoxSkin { get { return selectBoxSkin; } }
 
-		public static void storeSelectBoxItems(GUISkin skin)
+		public static void storeSelectBoxItems(GUISkin skin, Texture2D healthy, Texture2D damaged, Texture2D critical)
 		{
 			selectBoxSkin = skin;
+			healthyTexture = healthy;
+			damagedTexture = damaged;
+			criticalTexture = critical;
 		}
 
 		//the speed at which units are trained from buildings - customize later
@@ -63,6 +66,28 @@ namespace RTS {
 		public static Texture2D getBuildImage(string name)
 		{
 			return gameObjectList.getBuildImage (name);
+		}
+
+		//health bar textures
+		private static Texture2D healthyTexture, damagedTexture, criticalTexture;
+		public static Texture2D HealthyTexture { get { return healthyTexture; } }
+		public static Texture2D DamagedTexture { get { return damagedTexture; } }
+		public static Texture2D CriticalTexture { get { return criticalTexture; } }
+
+		//resource health bar textures
+		private static Dictionary<resourceType, Texture2D> resourceHealthBarTextures;
+
+		public static Texture2D getResourceHealthBar(resourceType resType)
+		{
+			if (resourceHealthBarTextures != null && resourceHealthBarTextures.ContainsKey (resType)) {
+				return resourceHealthBarTextures [resType];
+			}
+			return null;
+		}
+
+		public static void setResourceHealthBarTextures (Dictionary<resourceType, Texture2D> images)
+		{
+			resourceHealthBarTextures = images;
 		}
 
 

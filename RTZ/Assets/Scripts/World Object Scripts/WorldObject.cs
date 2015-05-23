@@ -18,6 +18,8 @@ public class WorldObject : MonoBehaviour
 	protected bool currentlySelected = false;
 	protected Bounds selectionBounds;
 	protected Rect playingArea = new Rect(0.0f, 0.0f, 0.0f, 0.0f);
+	protected GUIStyle healthStyle = new GUIStyle();
+	protected float healthPercentage = 1.0f;
 	
 	protected virtual void Awake()
 	{
@@ -84,6 +86,10 @@ public class WorldObject : MonoBehaviour
 			WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
 			//clicked on another selectable object
 			if (worldObject) {
+				Resource resource = hitObject.transform.parent.GetComponent<Resource>();
+				if (resource && resource.isEmpty()) {
+					return;
+				}
 				changeSelection (worldObject, controller);
 			}
 		}
@@ -121,6 +127,8 @@ public class WorldObject : MonoBehaviour
 	protected virtual void drawSelectionBox(Rect selectBox)
 	{
 		GUI.Box (selectBox, "");
+		calculateCurrentHealth ();
+		GUI.Label (new Rect (selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), "", healthStyle);
 	}
 	
 	public virtual void setHoverState(GameObject hoverObject) 
@@ -139,6 +147,23 @@ public class WorldObject : MonoBehaviour
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	public Bounds getSelectionBounds()
+	{
+		return selectionBounds;
+	}
+
+	protected virtual void calculateCurrentHealth()
+	{
+		healthPercentage = (float)hitPoints / (float)maxHitPoints;
+		if (healthPercentage > .65f) {
+			healthStyle.normal.background = resourceManager.HealthyTexture;
+		} else if (healthPercentage > .35f) {
+			healthStyle.normal.background = resourceManager.DamagedTexture;
+		} else {
+			healthStyle.normal.background = resourceManager.CriticalTexture;
 		}
 	}
 	

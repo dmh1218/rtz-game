@@ -62,7 +62,7 @@ public class Player : MonoBehaviour
 		resourceLimits [type] += amount;
 	}
 
-	public void addUnit (string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation)
+	public void addUnit (string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator)
 	{
 		Debug.Log ("add" + unitName + " to player");
 		Units units = GetComponentInChildren<Units> ();
@@ -71,6 +71,12 @@ public class Player : MonoBehaviour
 		Unit unitObject = newUnit.GetComponent<Unit> ();
 		if (unitObject && spawnPoint != rallyPoint) {
 			unitObject.startMove (rallyPoint);
+		}
+		if (unitObject) {
+			unitObject.init (creator);
+			if (spawnPoint != rallyPoint) {
+				unitObject.startMove (rallyPoint);
+			}
 		}
 	}
 }

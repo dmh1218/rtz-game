@@ -5,7 +5,7 @@ using RTS;
 public class Building : WorldObject 
 {
 	public float maxBuildProgress;
-	public Texture2D rallyPointImage;
+	public Texture2D rallyPointImage, sellImage;
 
 	protected Queue< string > buildQueue;
 	protected Vector3 rallyPoint;
@@ -52,11 +52,26 @@ public class Building : WorldObject
 		//only handle input if owned by a human player and currently selected
 		if (player && player.human && currentlySelected) {
 			if (hitObject.name == "Ground") {
-				if ((player.hud.getCursorState () == cursorState.RallyPoint || player.hud.getPreviousCursorState () == cursorState.RallyPoint) && hitPoint != resourceManager.InvalidPosition) {
-					setRallyPoint (hitPoint);
-				}
+				setRallyPoint (hitPoint);
 			}
 		}
+	}
+
+	public override void leftMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
+	{
+		base.leftMouseClick (hitObject, hitPoint, controller);
+		if (player && player.human && currentlySelected) {
+			if (hitObject.name == "Ground") {
+				if ((player.hud.getCursorState () == cursorState.RallyPoint || player.hud.getPreviousCursorState () == cursorState.RallyPoint) && hitPoint != resourceManager.InvalidPosition) {
+					if (player.selectedObject) {
+						player.selectedObject.SetSelection(false, playingArea);
+					}
+					SetSelection(true, playingArea);
+					player.selectedObject = this;
+					setRallyPoint (hitPoint);
+				} 
+			} 
+		} 
 	}
 
 	protected void createUnit(string unitName)
@@ -70,7 +85,7 @@ public class Building : WorldObject
 			currentBuildProgress += Time.deltaTime * resourceManager.buildSpeed;
 			if (currentBuildProgress > maxBuildProgress) {
 				if (player) {
-					player.addUnit (buildQueue.Dequeue (), spawnPoint, rallyPoint, transform.rotation);
+					player.addUnit (buildQueue.Dequeue (), spawnPoint, rallyPoint, transform.rotation, this);
 				}
 				currentBuildProgress = 0.0f;
 			}
@@ -139,6 +154,17 @@ public class Building : WorldObject
 				flag.transform.localPosition = rallyPoint;
 			}
 		}
+	}
+
+	public void sell()
+	{
+		if (player) {
+			player.addResource (resourceType.Money, sellValue);
+		}
+		if (currentlySelected) {
+			SetSelection (false, playingArea);
+		}
+		Destroy (this.gameObject);
 	}
 
 }
