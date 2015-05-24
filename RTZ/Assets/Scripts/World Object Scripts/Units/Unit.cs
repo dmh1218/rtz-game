@@ -183,7 +183,7 @@ public class Unit : WorldObject
 		calculateBounds ();
 	}
 
-	public virtual void init(Building creator)
+	public virtual void setBuilding(Building creator)
 	{
 		//specific initialization for a unit can be specified here
 	}

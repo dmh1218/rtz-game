@@ -150,38 +150,48 @@ public class userInput : MonoBehaviour
 	private void leftMouseClick()
 	{
 		if (player.hud.mouseInBounds ()) {
-			GameObject hitObject = findHitObject ();
-			Vector3 hitPoint = findHitPoint ();
-			if (hitObject && hitPoint != resourceManager.InvalidPosition) {
-				if (player.selectedObject) {
-//					player.selectedObject.mouseClick (hitObject, hitPoint, player);
-					player.selectedObject.leftMouseClick (hitObject, hitPoint, player);
-					if (hitObject.name == "Ground") {
-						if (player.hud.mouseInBounds() && player.selectedObject) {
-							player.selectedObject.SetSelection(false, player.hud.getPlayingArea());
-							player.selectedObject = null;
+			if (player.isFindingBuildingLocation()) {
+				if (player.canPlaceBuilding()) {
+					player.startConstruction();
+				}
+			} else {
+				GameObject hitObject = workManager.findHitObject (Input.mousePosition);
+				Vector3 hitPoint = workManager.findHitPoint (Input.mousePosition);
+				if (hitObject && hitPoint != resourceManager.InvalidPosition) {
+					if (player.selectedObject) {
+//						player.selectedObject.mouseClick (hitObject, hitPoint, player);
+						player.selectedObject.leftMouseClick (hitObject, hitPoint, player);
+						if (hitObject.name == "Ground") {
+							if (player.hud.mouseInBounds() && player.selectedObject) {
+								player.selectedObject.SetSelection(false, player.hud.getPlayingArea());
+								player.selectedObject = null;
+							}
 						}
-					}
-				} else if (hitObject.name != "Ground") {
-					WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
-					if (worldObject) {
-						//we already know the player has no selected object
-						player.selectedObject = worldObject;
-						worldObject.SetSelection (true, player.hud.getPlayingArea());
-					}
-				} 
+					} else if (hitObject.name != "Ground") {
+						WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
+						if (worldObject) {
+							//we already know the player has no selected object
+							player.selectedObject = worldObject;
+							worldObject.SetSelection (true, player.hud.getPlayingArea());
+						}
+					} 
+				}
 			}
 		}
 	}
 
 	private void rightMouseClick()
 	{
-		GameObject hitObject = findHitObject ();
-		Vector3 hitPoint = findHitPoint ();
+		GameObject hitObject = workManager.findHitObject (Input.mousePosition);
+		Vector3 hitPoint = workManager.findHitPoint (Input.mousePosition);
 
-		if (hitObject && hitPoint != resourceManager.InvalidPosition) {
-			if (player.selectedObject) {
-				player.selectedObject.rightMouseClick (hitObject, hitPoint, player);
+		if (player.hud.mouseInBounds () && player.selectedObject) {
+			if (player.isFindingBuildingLocation ()) {
+				player.cancelBuildingPlacement ();
+			} else {
+				if (hitObject && hitPoint != resourceManager.InvalidPosition) {
+					player.selectedObject.rightMouseClick (hitObject, hitPoint, player);
+				}
 			}
 		}
 //		if (player.hud.mouseInBounds () && player.selectedObject) {
@@ -190,42 +200,26 @@ public class userInput : MonoBehaviour
 //		}
 	}
 
-	private GameObject findHitObject()
-	{
-		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-		RaycastHit hit;
-		if (Physics.Raycast (ray, out hit)) {
-			return hit.collider.gameObject;
-		} else {
-			return null;
-		}
-	}
 
-	private Vector3 findHitPoint()
-	{
-		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-		RaycastHit hit;
-		if (Physics.Raycast (ray, out hit)) {
-			return hit.point;
-		} else {
-			return resourceManager.InvalidPosition;
-		}
-	}
 
 	private void mouseHover()
 	{
 		if (player.hud.mouseInBounds ()) {
-			GameObject hoverObject = findHitObject ();
-			if (hoverObject) {
-				if (player.selectedObject) {
-					player.selectedObject.setHoverState (hoverObject);
-				} else if (hoverObject.name != "Ground") {
-					Player owner = hoverObject.transform.root.GetComponent<Player> ();
-					if (owner) {
-						Unit unit = hoverObject.transform.root.GetComponent<Unit> ();
-						Building building = hoverObject.transform.root.GetComponent<Building> ();
-						if (owner.username == player.username && (unit || building)) {
-							player.hud.setCursorState (cursorState.Select);
+			if (player.isFindingBuildingLocation()) {
+				player.findBuildingLocation();
+			} else {
+				GameObject hoverObject = workManager.findHitObject (Input.mousePosition);
+				if (hoverObject) {
+					if (player.selectedObject) {
+						player.selectedObject.setHoverState (hoverObject);
+					} else if (hoverObject.name != "Ground") {
+						Player owner = hoverObject.transform.root.GetComponent<Player> ();
+						if (owner) {
+							Unit unit = hoverObject.transform.root.GetComponent<Unit> ();
+							Building building = hoverObject.transform.root.GetComponent<Building> ();
+							if (owner.username == player.username && (unit || building)) {
+								player.hud.setCursorState (cursorState.Select);
+							}
 						}
 					}
 				}

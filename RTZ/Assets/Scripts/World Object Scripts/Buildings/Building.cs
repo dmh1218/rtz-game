@@ -4,23 +4,25 @@ using RTS;
 
 public class Building : WorldObject 
 {
+	//public variables
 	public float maxBuildProgress;
 	public Texture2D rallyPointImage, sellImage;
 
+	//protected variables
 	protected Queue< string > buildQueue;
 	protected Vector3 rallyPoint;
 
+	//private variables
 	private float currentBuildProgress = 0.0f;
 	private Vector3 spawnPoint;
-
-	float spawnX;
-	float spawnZ;
-
+	private bool needsBuilding = false;
 
 	protected override void Awake()
 	{
 		base.Awake ();
 
+		float spawnX;
+		float spawnZ;
 		buildQueue = new Queue< string > ();
 		spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
 		spawnZ = selectionBounds.center.z + transform.forward.z + selectionBounds.extents.z + transform.forward.z * 10;
@@ -43,6 +45,9 @@ public class Building : WorldObject
 	protected override void OnGUI()
 	{
 		base.OnGUI ();
+		if (needsBuilding) {
+			DrawBuildProgress ();
+		}
 	}
 
 	public override void rightMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
@@ -165,6 +170,50 @@ public class Building : WorldObject
 			SetSelection (false, playingArea);
 		}
 		Destroy (this.gameObject);
+	}
+
+	public void startConstruction()
+	{
+		setSpawnPoint ();
+		calculateBounds ();
+		needsBuilding = true;
+		hitPoints = 0;
+	}
+
+	public bool underConstruction()
+	{
+		return needsBuilding;
+	}
+
+	public void construct(int amount)
+	{
+		hitPoints += amount;
+		if (hitPoints >= maxHitPoints) {
+			hitPoints = maxHitPoints;
+			needsBuilding = false;
+			restoreMaterials ();
+		}
+	}
+
+	/*** Private methods ***/
+
+	private void DrawBuildProgress()
+	{
+		GUI.skin = resourceManager.SelectBoxSkin;
+		Rect selectBox = workManager.calculateSelectionBox (selectionBounds, playingArea);
+		//Draw the selection box around the currently selected object, within the bounds of the main draw area
+		GUI.BeginGroup (playingArea);
+		calculateCurrentHealth (0.5f, 0.99f);
+		DrawHealthBar (selectBox, "Building...");
+		GUI.EndGroup ();
+	}
+
+	private void setSpawnPoint()
+	{
+		float spawnX = selectionBounds.center.x + transform.forward.x * selectionBounds.extents.x + transform.forward.x * 10;
+		float spawnZ = selectionBounds.center.z + transform.forward.z * selectionBounds.extents.z + transform.forward.z * 10;
+		spawnPoint = new Vector3 (spawnX, 0.0f, spawnZ);
+		rallyPoint = spawnPoint;
 	}
 
 }

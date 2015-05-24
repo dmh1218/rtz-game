@@ -111,9 +111,9 @@ public class Harvester : Unit
 		}
 	}
 
-	public override void init (Building creator)
+	public override void setBuilding (Building creator)
 	{
-		base.init (creator);
+		base.setBuilding (creator);
 		resourceStore = creator;
 	}
 

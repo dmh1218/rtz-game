@@ -1,18 +1,22 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using RTS;
 
 public class WorldObject : MonoBehaviour 
 {
+	//public variables
 	public string objectName;
 	public Texture2D buildImage;
 	public int cost;
 	public int sellValue;
 	public int hitPoints;
 	public int maxHitPoints;
-	
-	Rect selectBox;
-	
+
+	//private variables
+	private Rect selectBox;
+	private List <Material> oldMaterials = new List<Material> ();
+
+	//protected variables
 	protected Player player;
 	protected string[] actions = {};
 	protected bool currentlySelected = false;
@@ -29,7 +33,7 @@ public class WorldObject : MonoBehaviour
 	
 	protected virtual void Start()
 	{
-		player = transform.root.GetComponentInChildren<Player> ();
+		setPlayer();
 	}
 	
 	protected virtual void Update()
@@ -115,6 +119,20 @@ public class WorldObject : MonoBehaviour
 		drawSelectionBox (selectBox);
 		GUI.EndGroup ();
 	}
+
+	protected void DrawHealthBar(Rect selectBox, string label)
+	{
+		healthStyle.padding.top = -20;
+		healthStyle.fontStyle = FontStyle.Bold;
+		GUI.Label (new Rect (selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), label, healthStyle);
+	}
+
+	protected virtual void drawSelectionBox(Rect selectBox)
+	{
+		GUI.Box (selectBox, "");
+		calculateCurrentHealth (0.35f, 0.65f);
+		DrawHealthBar (selectBox, "");
+	}
 	
 	public void calculateBounds()
 	{
@@ -122,13 +140,6 @@ public class WorldObject : MonoBehaviour
 		foreach (Renderer r in GetComponentsInChildren<Renderer>()) {
 			selectionBounds.Encapsulate (r.bounds);
 		}
-	}
-	
-	protected virtual void drawSelectionBox(Rect selectBox)
-	{
-		GUI.Box (selectBox, "");
-		calculateCurrentHealth ();
-		GUI.Label (new Rect (selectBox.x, selectBox.y - 7, selectBox.width * healthPercentage, 5), "", healthStyle);
 	}
 	
 	public virtual void setHoverState(GameObject hoverObject) 
@@ -155,16 +166,61 @@ public class WorldObject : MonoBehaviour
 		return selectionBounds;
 	}
 
-	protected virtual void calculateCurrentHealth()
+	protected virtual void calculateCurrentHealth(float lowSplit, float highSplit)
 	{
 		healthPercentage = (float)hitPoints / (float)maxHitPoints;
-		if (healthPercentage > .65f) {
+		if (healthPercentage > highSplit) {
 			healthStyle.normal.background = resourceManager.HealthyTexture;
-		} else if (healthPercentage > .35f) {
+		} else if (healthPercentage > lowSplit) {
 			healthStyle.normal.background = resourceManager.DamagedTexture;
 		} else {
 			healthStyle.normal.background = resourceManager.CriticalTexture;
 		}
+	}
+
+	public void setColliders(bool enabled)
+	{
+		Collider[] colliders = GetComponentsInChildren<Collider> ();
+		foreach (Collider collider in colliders) {
+			collider.enabled = enabled;
+		}
+	}
+
+	public void setTransparentMaterial(Material material, bool storeExistingMaterial)
+	{
+		if (storeExistingMaterial) {
+			oldMaterials.Clear ();
+		}
+		Renderer[] renderers = GetComponentsInChildren<Renderer> ();
+		foreach (Renderer renderer in renderers) {
+			if (storeExistingMaterial) {
+				oldMaterials.Add (renderer.material);
+			}
+			renderer.material = material;
+		}
+			
+	}
+
+	public void setPlayer()
+	{
+		player = transform.root.GetComponentInChildren<Player> ();
+	}
+
+	public void restoreMaterials()
+	{
+		Renderer[] renderers = GetComponentsInChildren<Renderer> ();
+		if (oldMaterials.Count == renderers.Length) {
+			Debug.Log("put back old material");
+			for (int i = 0; i < renderers.Length; i++) {
+				renderers [i].material = oldMaterials [i];
+				Debug.Log(oldMaterials[i].name);
+			}
+		}
+	}
+
+	public void setPlayingArea(Rect playingArea)
+	{
+		this.playingArea = playingArea;
 	}
 	
 }

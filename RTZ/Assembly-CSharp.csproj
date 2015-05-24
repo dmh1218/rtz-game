@@ -66,6 +66,7 @@
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Tank.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Unit.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Units.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Units\Worker.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\WorldObject.cs" />
      <Compile Include="Assets\Scripts\resourceManager.cs" />
      <Compile Include="Assets\Scripts\userInput.cs" />
