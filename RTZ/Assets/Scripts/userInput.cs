@@ -27,6 +27,9 @@ public class userInput : MonoBehaviour
 	void Update()
 	{
 		if (player.human) {
+			if (Input.GetKeyDown(KeyCode.Escape)) {
+				openPauseMenu();
+			}
 			moveCamera();
 			rotateCamera();
 			mouseActivity();
@@ -102,22 +105,6 @@ public class userInput : MonoBehaviour
 		} else if ((Input.GetKey (KeyCode.E))) {
 			Camera.main.transform.Rotate (Vector3.up * Time.deltaTime * resourceManager.rotateSpeed, Space.World);
 		}
-
-
-		//rotation method from tutorial
-//		oldRotation = Camera.main.transform.eulerAngles;
-//		newRotation = oldRotation;
-//
-//		//detect rotation amount if ALT is being held and the right mouse button is down
-//		if ((Input.GetKey(KeyCode.LeftAlt) || (Input.GetKey(KeyCode.RightAlt)) && Input.GetMouseButton(1))) {
-//			newRotation.x -= Input.GetAxis("Mouse Y") * resourceManager.rotateAmount;
-//			newRotation.y += Input.GetAxis("Mouse X") * resourceManager.rotateAmount;
-//		}
-//
-//		//if a change in position is detected, perform the necessary update
-//		if (newRotation != oldRotation) {
-//			Camera.main.transform.eulerAngles = Vector3.MoveTowards(oldRotation, newRotation, Time.deltaTime * resourceManager.rotateSpeed);
-//		}
 	}
 
 	void zoomCamera()
@@ -194,13 +181,16 @@ public class userInput : MonoBehaviour
 				}
 			}
 		}
-//		if (player.hud.mouseInBounds () && player.selectedObject) {
-//			player.selectedObject.SetSelection (false, player.hud.getPlayingArea());
-//			player.selectedObject = null;
-//		}
 	}
 
-
+	private void openPauseMenu()
+	{
+		Time.timeScale = 0.0f;
+		GetComponentInChildren<PauseMenu> ().enabled = true;
+		GetComponent<userInput> ().enabled = false;
+		Cursor.visible = true;
+		resourceManager.menuOpen = true;
+	}
 
 	private void mouseHover()
 	{

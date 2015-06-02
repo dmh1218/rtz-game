@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
 	public WorldObject selectedObject { get; set; }
 	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
 	public Material notAllowedMaterial, allowedMaterial;
+	public Color teamColor;
 
 	//private variables
 	private Dictionary<resourceType, int> resources, resourceLimits;
