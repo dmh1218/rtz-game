@@ -7,6 +7,7 @@ public class Menu : MonoBehaviour
 	//public variables
 	public GUISkin mySkin;
 	public Texture2D header;
+	
 
 	//protected variables
 	protected string[] buttons;
@@ -90,5 +91,4 @@ public class Menu : MonoBehaviour
 	{
 		Application.Quit ();
 	}
-
 }

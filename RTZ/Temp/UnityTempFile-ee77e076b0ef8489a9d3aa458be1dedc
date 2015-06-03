@@ -4,12 +4,10 @@
 -out:'Temp/Assembly-CSharp.dll'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEngine.dll'
 -r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll'
--r:'Assets/Json.NET/Newtonsoft.Json.dll'
 -r:'Assets/JsonDotNet/Examples/Tests/TestModels/SampleClassLibrary.dll'
--r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEditor.dll'
 -r:'/Applications/Unity/Unity.app/Contents/PlaybackEngines/iossupport/UnityEditor.iOS.Extensions.Xcode.dll'
--define:UNITY_5_0_1
+-define:UNITY_5_0_2
 -define:UNITY_5_0
 -define:UNITY_5
 -define:ENABLE_LICENSE_RENAME
@@ -398,6 +396,7 @@
 'Assets/Scripts/Player.cs'
 'Assets/Scripts/RTS Managers/playerManager.cs'
 'Assets/Scripts/RTS Managers/resourceManager.cs'
+'Assets/Scripts/RTS Managers/selectionList.cs'
 'Assets/Scripts/RTS Managers/workManager.cs'
 'Assets/Scripts/TeamColor.cs'
 'Assets/Scripts/UI/HUD.cs'
