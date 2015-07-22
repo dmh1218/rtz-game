@@ -17,6 +17,11 @@ public class SelectPlayerMenu : MonoBehaviour
 
 	void OnGUI()
 	{
+		if (selectionList.mouseDoubleClick ()) {
+			playerName = selectionList.getCurrentEntry ();
+			selectPlayer ();
+		}
+
 		GUI.skin = mySkin;
 
 		float menuHeight = getMenuHeight ();

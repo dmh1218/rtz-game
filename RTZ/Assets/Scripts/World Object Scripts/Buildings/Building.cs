@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using RTS;
+using Newtonsoft.Json;
 
 public class Building : WorldObject 
 {
@@ -50,13 +51,55 @@ public class Building : WorldObject
 		}
 	}
 
+	protected override void handleLoadedProperty(JsonTextReader reader, string propertyName, object readValue)
+	{
+		base.handleLoadedProperty (reader, propertyName, readValue);
+
+		switch (propertyName) {
+		case "NeedsBuilding":
+			needsBuilding = (bool)readValue;
+			break;
+		case "SpawnPoint":
+			spawnPoint = loadManager.loadVector (reader);
+			break;
+		case "RallyPoint":
+			rallyPoint = loadManager.loadVector (reader);
+			break;
+		case "BuildProgress":
+			currentBuildProgress = (float)loadManager.convertToFloat(readValue);
+			break;
+		case "BuildQueue":
+			buildQueue = new Queue<string> (loadManager.loadStringArray (reader));
+			break;
+		case "PlayingArea":
+			playingArea = loadManager.loadRect (reader);
+			break;
+		default:
+			break;
+		}
+	}
+
+	public override void saveDetails(JsonWriter writer)
+	{
+		base.saveDetails (writer);
+
+		saveManager.writeBoolean (writer, "NeedsBuilding", needsBuilding);
+		saveManager.writeVector (writer, "SpawnPoint", spawnPoint);
+		saveManager.writeVector (writer, "RallyPoint", rallyPoint);
+		saveManager.writeFloat (writer, "BuildProgress", currentBuildProgress);
+		saveManager.writeStringArray (writer, "BuildQueue", buildQueue.ToArray ());
+		if (needsBuilding) {
+			saveManager.writeRect (writer, "PlayingArea", playingArea);
+		}
+	}
+
 	public override void rightMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
 	{
 		base.rightMouseClick (hitObject, hitPoint, controller);
 
 		//only handle input if owned by a human player and currently selected
 		if (player && player.human && currentlySelected) {
-			if (hitObject.name == "Ground") {
+			if (workManager.objectIsGround(hitObject)) {
 				setRallyPoint (hitPoint);
 			}
 		}
@@ -66,7 +109,7 @@ public class Building : WorldObject
 	{
 		base.leftMouseClick (hitObject, hitPoint, controller);
 		if (player && player.human && currentlySelected) {
-			if (hitObject.name == "Ground") {
+			if (workManager.objectIsGround(hitObject)) {
 				if ((player.hud.getCursorState () == cursorState.RallyPoint || player.hud.getPreviousCursorState () == cursorState.RallyPoint) && hitPoint != resourceManager.InvalidPosition) {
 					if (player.selectedObject) {
 						player.selectedObject.SetSelection(false, playingArea);
@@ -81,6 +124,13 @@ public class Building : WorldObject
 
 	protected void createUnit(string unitName)
 	{
+		GameObject unit = resourceManager.getUnit (unitName);
+		Unit unitObject = unit.GetComponent<Unit> ();
+
+		if (player && unitObject) {
+			player.removeResource (resourceType.Money, unitObject.cost);
+		}
+
 		buildQueue.Enqueue (unitName);
 	}
 
@@ -142,7 +192,7 @@ public class Building : WorldObject
 
 		//only handle input if owned by a human player and currently selected
 		if (player && player.human && currentlySelected) {
-			if (hoverObject.name == "Ground") {
+			if (workManager.objectIsGround(hoverObject)) {
 				if (player.hud.getPreviousCursorState () == cursorState.RallyPoint) {
 					player.hud.setCursorState (cursorState.RallyPoint);
 				}

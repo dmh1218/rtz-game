@@ -70,6 +70,11 @@ public class Menu : MonoBehaviour
 		//a child class needs to set this to handle button clicks
 	}
 
+	protected virtual void hideCurrentMenu()
+	{
+		//a child class needs to set this to hide itself when appropriate
+	}
+
 	protected virtual float getMenuHeight()
 	{
 		float buttonHeight = 0;
@@ -90,5 +95,15 @@ public class Menu : MonoBehaviour
 	protected void exitGame()
 	{
 		Application.Quit ();
+	}
+	
+	protected void loadGame()
+	{
+		hideCurrentMenu ();
+		LoadMenu loadMenu = GetComponent<LoadMenu>();
+		if (loadMenu) {
+			loadMenu.enabled = true;
+			loadMenu.activate ();
+		}
 	}
 }

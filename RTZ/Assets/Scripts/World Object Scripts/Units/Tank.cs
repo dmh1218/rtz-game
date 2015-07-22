@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RTS;
+using Newtonsoft.Json;
 
 public class Tank : Unit 
 {
-
 	//private variables
 	private Quaternion aimRotation;
 
@@ -43,6 +43,27 @@ public class Tank : Unit
 		Projectile projectile = gameObject.GetComponentInChildren<Projectile> ();
 		projectile.setRange (0.9f * weaponRange);
 		projectile.setTarget (target);
+	}
+
+	protected override void handleLoadedProperty(JsonTextReader reader, string propertyName, object readValue)
+	{
+		base.handleLoadedProperty (reader, propertyName, readValue);
+
+		switch (propertyName) {
+		case "AimRotation":
+			aimRotation = loadManager.loadQuaternion(reader);
+			break;
+		default:
+			break;
+		}
+	}
+
+	//save aspects unique to tanks
+	public override void saveDetails(JsonWriter writer)
+	{
+		base.saveDetails (writer);
+
+		saveManager.writeQuaternion (writer, "AimRotation", aimRotation);
 	}
 
 	public override bool canAttack()

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using RTS;
+using Newtonsoft.Json;
 
 public class Player : MonoBehaviour 
 {
@@ -68,6 +69,104 @@ public class Player : MonoBehaviour
 		addResource (resourceType.Power, startPower);
 	}
 
+	private void loadResources(JsonTextReader reader)
+	{
+		if (reader == null) {
+			return;
+		}
+
+		string currValue = "";
+		while (reader.Read()) {
+			if (reader.Value != null) {
+				if (reader.TokenType == JsonToken.PropertyName) {
+					currValue = (string)reader.Value;
+				} else {
+					switch(currValue) {
+					case "Money":
+						startMoney = (int)(System.Int64)reader.Value;
+						break;
+					case "Money_Limit":
+						startMoneyLimit = (int)(System.Int64)reader.Value;
+						break;
+					case "Power":
+						startPower = (int)(System.Int64)reader.Value;
+						break;
+					case "Power_Limit":
+						startPowerLimit = (int)(System.Int64)reader.Value;
+						break;
+					default:
+						break;
+					}
+				}
+			} else if (reader.TokenType == JsonToken.EndArray) {
+				return;
+			}
+		}
+	}
+
+	private void loadBuildings(JsonTextReader reader)
+	{
+		if (reader == null) {
+			return;
+		}
+
+		Buildings buildings = GetComponentInChildren<Buildings> ();
+		string currValue = "";
+		string type = "";
+
+		while (reader.Read()) {
+			if (reader.Value != null) {
+				if (reader.TokenType == JsonToken.PropertyName) {
+					currValue = (string)reader.Value;
+				} else if (currValue == "Type") {
+					type = (string)reader.Value;
+					GameObject newObject = (GameObject)GameObject.Instantiate(resourceManager.getBuilding(type));
+					Building building = newObject.GetComponent<Building>();
+					building.loadDetails(reader);
+					building.transform.parent = buildings.transform;
+					building.setPlayer();
+					building.setTeamColor();
+					if (building.underConstruction()) {
+						building.setTransparentMaterial(allowedMaterial, true);
+					}
+				}
+			} else if (reader.TokenType == JsonToken.EndArray) {
+				return;
+			}
+		}
+	}
+
+	private void loadUnits(JsonTextReader reader)
+	{
+		if (reader == null) {
+			return;
+		}
+
+		Units units = GetComponentInChildren<Units> ();
+		string currValue = "";
+		string type = "";
+
+		while (reader.Read()) {
+			if (reader.Value != null) {
+				if (reader.TokenType == JsonToken.PropertyName) {
+					currValue = (string)reader.Value;
+				} else if (currValue == "Type") {
+					type = (string)reader.Value;
+					GameObject newObject = (GameObject)GameObject.Instantiate(resourceManager.getUnit(type));
+					Unit unit = newObject.GetComponent<Unit>();
+					unit.loadDetails(reader);
+					unit.transform.parent = units.transform;
+					unit.setPlayer();
+					unit.setTeamColor();
+				}
+			} else if (reader.TokenType == JsonToken.EndArray) {
+				return;
+			}
+		}
+	}
+
+	//public methods for Player.cs
+
 	public void addResource (resourceType type, int amount)
 	{
 		resources [type] += amount;
@@ -90,6 +189,7 @@ public class Player : MonoBehaviour
 		}
 		if (unitObject) {
 			unitObject.setBuilding (creator);
+			unitObject.objectId = resourceManager.getNewObjectId();
 			if (spawnPoint != rallyPoint) {
 				unitObject.startMove (rallyPoint);
 			}
@@ -102,11 +202,13 @@ public class Player : MonoBehaviour
 		GameObject newBuilding = (GameObject)Instantiate (resourceManager.getBuilding (buildingName), buildPoint, new Quaternion ());
 		tempBuilding = newBuilding.GetComponent<Building> ();
 		if (tempBuilding) {
+			tempBuilding.objectId = resourceManager.getNewObjectId();
 			tempCreator = creator;
 			findingPlacement = true;
 			tempBuilding.setTransparentMaterial (notAllowedMaterial, true);
 			tempBuilding.setColliders (false);
 			tempBuilding.setPlayingArea (playingArea);
+			tempBuilding.hitPoints = 0;
 		} else {
 			Destroy (newBuilding);
 		}
@@ -151,7 +253,7 @@ public class Player : MonoBehaviour
 
 		foreach (Vector3 corner in corners) {
 			GameObject hitObject = workManager.findHitObject(corner);
-			if (hitObject && hitObject.name != "Ground") {
+			if (hitObject && !workManager.objectIsGround(hitObject)) {
 				WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject>();
 				if (worldObject && placeBounds.Intersects(worldObject.getSelectionBounds())) {
 					canPlace = false;
@@ -173,6 +275,7 @@ public class Player : MonoBehaviour
 		tempBuilding.setColliders (true);
 		tempCreator.setBuilding (tempBuilding);
 		tempBuilding.startConstruction ();
+		removeResource (resourceType.Money, tempBuilding.cost);
 	}
 
 	public void cancelBuildingPlacement()
@@ -181,6 +284,95 @@ public class Player : MonoBehaviour
 		Destroy (tempBuilding.gameObject);
 		tempBuilding = null;
 		tempCreator = null;
+	}
+
+	public WorldObject getObjectForId(int id)
+	{
+		WorldObject[] objects = GameObject.FindObjectsOfType (typeof(WorldObject)) as WorldObject[];
+		foreach (WorldObject obj in objects) {
+			if (obj.objectId == id) {
+				return obj;
+			}
+		}
+		return null;
+	}
+
+	public void loadDetails(JsonTextReader reader)
+	{
+		if (reader == null) {
+			return;
+		}
+
+		string currValue = "";
+		while (reader.Read()) {
+			if (reader.Value != null) {
+				if (reader.TokenType == JsonToken.PropertyName) {
+					currValue = (string)reader.Value;
+				} else {
+					switch (currValue) {
+					case "Username":
+						username = (string)reader.Value;
+						Debug.Log("username: " + username);
+						break;
+					case "Human":
+						human = (bool)reader.Value;
+						break;
+					default:
+						break;
+					}
+				}
+			} else if (reader.TokenType == JsonToken.StartObject || reader.TokenType == JsonToken.StartArray) {
+				switch (currValue) {
+				case "TeamColor":
+					teamColor = loadManager.loadColor (reader);
+					break;
+				case "Resources":
+					loadResources (reader);
+					break;
+				case "Buildings":
+					loadBuildings (reader);
+					break;
+				case "Units":
+					//loadUnits (reader);
+					break;
+				default:
+					break;
+				}
+			} else if (reader.TokenType == JsonToken.EndObject) {
+				return;
+			}
+		}
+	}
+
+	public bool isDead()
+	{
+		Building[] buildings = GetComponentsInChildren<Building> ();
+		Unit[] units = GetComponentsInChildren<Unit> ();
+
+		if (buildings != null && buildings.Length > 0) {
+			return false;
+		}
+
+		if (units != null && units.Length > 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public void removeResource(resourceType type, int amount)
+	{
+		resources [type] -= amount;
+	}
+
+	public virtual void saveDetails(JsonWriter writer)
+	{
+		saveManager.writeString (writer, "Username", username);
+		saveManager.writeBoolean (writer, "Human", human);
+		saveManager.writeColor (writer, "TeamColor", teamColor);
+		saveManager.savePlayerResources (writer, resources, resourceLimits);
+		saveManager.savePlayerBuildings (writer, GetComponentsInChildren<Building> ());
+		saveManager.savePlayerUnits (writer, GetComponentsInChildren<Unit> ());
 	}
 }
 

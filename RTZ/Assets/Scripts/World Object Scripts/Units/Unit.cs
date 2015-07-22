@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RTS;
+using Newtonsoft.Json;
 
 public class Unit : WorldObject 
 {
@@ -10,6 +11,7 @@ public class Unit : WorldObject
 	private Vector3 destination;
 	private Quaternion targetRotation;
 	private GameObject destinationTarget;
+	private int loadedDestinationTargetId;
 
 	public float rotateSpeed;
 	public float moveSpeed;
@@ -24,6 +26,10 @@ public class Unit : WorldObject
 	protected override void Start()
 	{
 		base.Start ();
+
+		if (player && loadedSavedValues && loadedDestinationTargetId >= 0) {
+			destinationTarget = player.getObjectForId (loadedDestinationTargetId).gameObject;
+		}
 	}
 
 	protected override void Update()
@@ -41,13 +47,64 @@ public class Unit : WorldObject
 		base.OnGUI ();
 	}
 
+	protected override void handleLoadedProperty(JsonTextReader reader, string propertyName, object readValue)
+	{
+		base.handleLoadedProperty (reader, propertyName, readValue);
+
+		switch (propertyName) {
+		case "Moving":
+			moving = (bool)readValue;
+			break;
+		case "Rotating":
+			rotating = (bool)readValue;
+			break;
+		case "Destination":
+			destination = loadManager.loadVector(reader);
+			break;
+		case "TargetRotation":
+			targetRotation = loadManager.loadQuaternion(reader);
+			break;
+		case "DestinationTargetId":
+			loadedDestinationTargetId = (int)(System.Int64)readValue;
+			break;
+		default:
+			break;
+		}
+	}
+
+	protected override bool shouldMakeDecision()
+	{
+		if (moving || rotating) {
+			return false;
+		}
+		return base.shouldMakeDecision ();
+	}
+
+	//override function to save unique aspects for units
+	public override void saveDetails(JsonWriter writer)
+	{
+		base.saveDetails (writer);
+
+		saveManager.writeBoolean (writer, "Moving", moving);
+		saveManager.writeBoolean (writer, "Rotating", rotating);
+		saveManager.writeVector (writer, "Destination", destination);
+		saveManager.writeQuaternion (writer, "TargetRotation", targetRotation);
+
+		if (destinationTarget) {
+			WorldObject destinationObject = destinationTarget.GetComponent<WorldObject> ();
+			if (destinationObject) {
+				saveManager.writeInt (writer, "DestinationTargetId", destinationObject.objectId);
+			}
+		}
+	}
+
 	public override void setHoverState(GameObject hoverObject)
 	{
 		base.setHoverState (hoverObject);
 		//only handle input if owned by a human player and currently selected
 		if (player && player.human && currentlySelected) {
 			bool moveHover = false;
-			if (hoverObject.name == "Ground") {
+			if (workManager.objectIsGround(hoverObject)) {
 				moveHover = true;
 			} else {
 				Resource resource = hoverObject.transform.parent.GetComponent<Resource>();
@@ -91,7 +148,7 @@ public class Unit : WorldObject
 				}
 			}
 
-			if ((hitObject.name == "Ground" || clickedOnEmptyResource) && hitPoint != resourceManager.InvalidPosition) {
+			if ((workManager.objectIsGround(hitObject) || clickedOnEmptyResource) && hitPoint != resourceManager.InvalidPosition) {
 				float x = hitPoint.x;
 				//make sure that the unit stays on top of the surface it is on
 				float y = hitPoint.y + player.selectedObject.transform.position.y;

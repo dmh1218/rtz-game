@@ -64,5 +64,62 @@ namespace RTS {
 				return resourceManager.InvalidPosition;
 			}
 		}
+
+		public static resourceType getResourceType(string type)
+		{
+			switch (type) {
+			case "Money":
+				return resourceType.Money;
+			case "Power":
+				return resourceType.Power;
+			case "Ore":
+				return resourceType.Ore;
+			default:
+				return resourceType.Unknown;
+			}
+		}
+
+		public static bool objectIsGround(GameObject obj)
+		{
+			return obj.name == "Ground" || obj.name == "Ground(Clone)";
+		}
+
+		public static List<WorldObject> findNearbyObjects(Vector3 position, float range)
+		{
+			Collider[] hitColliders = Physics.OverlapSphere (position, range);
+			HashSet<int> nearbyObjectIds = new HashSet<int> ();
+			List<WorldObject> nearbyObjects = new List<WorldObject> ();
+
+			for (int i = 0; i < hitColliders.Length; i++) {
+				Transform parent = hitColliders [i].transform.parent;
+				if (parent) {
+					WorldObject parentObject = parent.GetComponent<WorldObject> ();
+					if (parentObject && !nearbyObjectIds.Contains (parentObject.objectId)) {
+						nearbyObjectIds.Add (parentObject.objectId);
+						nearbyObjects.Add (parentObject);
+					}
+				}
+			}
+			return nearbyObjects;
+		}
+
+		public static WorldObject findNearestWorldObject(List<WorldObject> objects, Vector3 position)
+		{
+			if (objects == null || objects.Count == 0) {
+				return null;
+			}
+
+			WorldObject nearestObject = objects [0];
+			float distanceToNearestObject = Vector3.Distance (position, nearestObject.transform.position);
+
+			for (int i = 1; i < objects.Count; i++) {
+				float distanceToObject = Vector3.Distance (position, objects [i].transform.position);
+				if (distanceToObject < distanceToNearestObject) {
+					distanceToNearestObject = distanceToObject;
+					nearestObject = objects [i];
+				}
+			}
+			return nearestObject;
+		}
 	}
 }

@@ -149,6 +149,24 @@ public class HUD : MonoBehaviour
 		textLeft += textWidth;
 		DrawResourceIcon (resourceType.Power, iconLeft, textLeft, topPos);
 
+		int padding = 7;
+		int buttonWidth = ordersBarWidth - 2 * padding - scrollBarWidth;
+		int buttonHeight = resourceBarHeight - 2 * padding;
+		int leftPos = Screen.width - ordersBarWidth / 2 - buttonWidth / 2 + scrollBarWidth / 2;
+		Rect menuButtonPosition = new Rect (leftPos, padding, buttonWidth, buttonHeight);
+
+		if (GUI.Button (menuButtonPosition, "Menu")) {
+			Time.timeScale = 0.0f;
+			PauseMenu pauseMenu = GetComponent<PauseMenu> ();
+			if (pauseMenu) {
+				pauseMenu.enabled = true;
+			}
+			userInput UserInput = player.GetComponent<userInput> ();
+			if (UserInput) {
+				UserInput.enabled = false;
+			}
+		}
+
 		GUI.EndGroup ();
 	}
 

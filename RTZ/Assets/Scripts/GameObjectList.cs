@@ -47,7 +47,11 @@ public class GameObjectList : MonoBehaviour
 	public GameObject getWorldObject(string name)
 	{
 		foreach (GameObject worldObject in worldObjects) {
+			if (worldObject == null) {
+				Debug.Log("worldobject null");
+			}
 			if (worldObject.name == name) {
+
 				return worldObject;
 			}
 		}

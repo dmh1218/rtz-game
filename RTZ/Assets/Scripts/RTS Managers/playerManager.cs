@@ -108,6 +108,21 @@ namespace RTS
 			return playerNames;
 		}
 
+		public static string[] getSavedGames()
+		{
+			DirectoryInfo directory = new DirectoryInfo ("SavedGames" + Path.DirectorySeparatorChar + currentPlayer.Name);
+			FileInfo[] files = directory.GetFiles ();
+			string[] savedGames = new string[files.Length];
+
+			for (int i = 0; i < files.Length; i++) {
+				string filename = files [i].Name;
+				savedGames [i] = filename.Substring (0, filename.Length);
+//				Debug.Log (filename.IndexOf("."));
+
+			}
+			return savedGames;
+		}
+
 		private static void savePlayer(JsonWriter writer, playerDetails player)
 		{
 			writer.WriteStartObject ();

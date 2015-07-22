@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using RTS;
+using Newtonsoft.Json;
 
 public class Harvester : Unit 
 {
@@ -8,18 +9,40 @@ public class Harvester : Unit
 	public Building resourceStore;
 
 	//private variables
-	private bool harvesting = false, emptying = false;
+	private bool harvesting = false;
+	private bool emptying = false;
 	private float currentLoad = 0.0f;
 	private float currentDeposit = 0.0f;
 	private resourceType harvestType;
 	private Resource resourceDeposit;
+	private int loadedDepositId = -1;
+	private int loadedStoreId = -1;
 
 	/*** Game Engine Methods, all can be overriden by subclass ***/
 
 	protected override void Start ()
 	{
 		base.Start ();
-		harvestType = resourceType.Unknown;
+
+		if (loadedSavedValues) {
+			if (player) {
+				if (loadedStoreId >= 0) {
+					WorldObject obj = player.getObjectForId(loadedStoreId);
+					if (obj.GetType().IsSubclassOf(typeof(Building))) {
+						resourceStore = (Building)obj;
+					}
+				}
+
+				if (loadedDepositId >= 0) {
+					WorldObject obj = player.getObjectForId(loadedDepositId);
+					if (obj.GetType().IsSubclassOf(typeof(Resource))) {
+						resourceDeposit = (Resource)obj;
+					}
+				}
+			}
+		} else {
+			harvestType = resourceType.Unknown;
+		}
 	}
 
 	protected override void Update ()
@@ -61,8 +84,67 @@ public class Harvester : Unit
 			}
 		}
 	}
+	
+	protected override void handleLoadedProperty(JsonTextReader reader, string propertyName, object readValue)
+	{
+		base.handleLoadedProperty (reader, propertyName, readValue);
+
+		switch (propertyName) {
+		case "Harvesting":
+			harvesting = (bool)readValue;
+			break;
+		case "Emptying":
+			emptying = (bool)readValue;
+			break;
+		case "CurrentLoad":
+			currentLoad = (float)loadManager.convertToFloat(readValue);
+			break;
+		case "CurrentDeposit":
+			currentDeposit = (float)loadManager.convertToFloat(readValue);
+			break;
+		case "HarvestType":
+			harvestType = workManager.getResourceType ((string)readValue);
+			break;
+		case "ResourceDepositId":
+			loadedDepositId = (int)(System.Int64)readValue;
+			break;
+		case "ResourceStoreId":
+			loadedStoreId = (int)(System.Int64)readValue;
+			break;
+		default:
+			break;
+		}
+	}
+
+	protected override bool shouldMakeDecision()
+	{
+		if (harvesting || emptying) {
+			return false;
+		}
+
+		return base.shouldMakeDecision ();
+	}
 
 	/*** Public Methods ***/
+
+	public override void saveDetails(JsonWriter writer)
+	{
+		base.saveDetails (writer);
+		
+		saveManager.writeBoolean (writer, "Harvesting", harvesting);
+		saveManager.writeBoolean (writer, "Emptying", emptying);
+		saveManager.writeFloat (writer, "CurrentLoad", currentLoad);
+		saveManager.writeFloat (writer, "CurrentDeposit", currentDeposit);
+		saveManager.writeString (writer, "HarvestType", harvestType.ToString ());
+
+		if (resourceDeposit) {
+			saveManager.writeInt (writer, "ResourceDepositId", resourceDeposit.objectId);
+		}
+
+		if (resourceStore) {
+			saveManager.writeInt (writer, "ResourceStoreId", resourceStore.objectId);
+		}
+	}
 
 	public override void setHoverState(GameObject hoverObject)
 	{
@@ -70,7 +152,7 @@ public class Harvester : Unit
 
 		//only handle input if owned by human player and currently selected
 		if (player && player.human && currentlySelected) {
-			if (hoverObject.name != "Ground") {
+			if (!workManager.objectIsGround(hoverObject)) {
 				Resource resource = hoverObject.transform.parent.GetComponent<Resource> ();
 				if (resource && !resource.isEmpty ()) {
 					player.hud.setCursorState (cursorState.Harvest);
@@ -85,7 +167,7 @@ public class Harvester : Unit
 
 		//only handle input if owne by a human player and currently selected
 		if (player && player.human) {
-			if (hitObject.name != "Ground") {
+			if (!workManager.objectIsGround(hitObject)) {
 				Resource resource = hitObject.transform.parent.GetComponent<Resource> ();
 				if (resource && !resource.isEmpty ()) {
 					startHarvest (resource);

@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using RTS;
+using Newtonsoft.Json;
 
 public class Worker : Unit {
 	//public variables
@@ -8,13 +11,22 @@ public class Worker : Unit {
 	private Building currentProject;
 	private bool building = false;
 	private float amountBuilt = 0.0f;
+	private int loadedProjectId = -1;
 
 	/*** Game Engine methods, all can be overriden by subclass ***/
 
 	protected override void Start()
 	{
 		base.Start ();
-		actions = new string[] {"Refinery", "WarFactory"};
+
+		actions = new string[] {"Refinery", "WarFactory", "Turret"};
+		if (player && loadedSavedValues && loadedProjectId >= 0) {
+			WorldObject obj = player.getObjectForId (loadedProjectId);
+			if (obj.GetType ().IsSubclassOf (typeof(Building))) {
+				currentProject = (Building)obj;
+
+			}
+		}
 	}
 
 	protected override void Update()
@@ -36,7 +48,61 @@ public class Worker : Unit {
 		}
 	}
 
+	protected override void handleLoadedProperty(JsonTextReader reader, string propertyName, object readValue)
+	{
+		base.handleLoadedProperty (reader, propertyName, readValue);
+
+		switch (propertyName) {
+		case "Building":
+			building = (bool)readValue;
+			break;
+		case "AmountBuilt":
+			amountBuilt = (float)loadManager.convertToFloat(readValue);
+			break;
+		case "CurrentProjectId":
+			loadedProjectId = (int)(System.Int64)readValue;
+			break;
+		default:
+			break;
+		}
+	}
+
+	protected override bool shouldMakeDecision()
+	{
+		if (building) {
+			return false;
+		}
+		return base.shouldMakeDecision ();
+	}
+
+	protected override void decideWhatToDo()
+	{
+		base.decideWhatToDo ();
+
+		List<WorldObject> buildings = new List<WorldObject> ();
+
+		foreach (WorldObject nearbyObject in nearbyObjects) {
+			if (nearbyObject.getPlayer () != player) {
+				continue;
+			}
+			Building nearbyBuilding = nearbyObject.GetComponent<Building> ();
+			if (nearbyBuilding && nearbyBuilding.underConstruction ()) {
+				buildings.Add (nearbyObject);
+			}
+		}
+
+		WorldObject nearestObject = workManager.findNearestWorldObject (buildings, transform.position);
+
+		if (nearestObject) {
+			Building closestBuilding = nearestObject.GetComponent<Building> ();
+			if (closestBuilding) {
+				setBuilding (closestBuilding);
+			}
+		}
+	}
+
 	/*** Public methods ***/
+
 
 	public override void setBuilding(Building project)
 	{
@@ -57,7 +123,7 @@ public class Worker : Unit {
 		bool doBase = true;
 
 		//only handle input if owned by a human player and currently selected
-		if (player && player.human && currentlySelected && hitObject && hitObject.name != "Ground") {
+		if (player && player.human && currentlySelected && hitObject && !workManager.objectIsGround(hitObject)) {
 			Building building = hitObject.transform.parent.GetComponent<Building> ();
 			if (building) {
 				if (building.underConstruction ()) {

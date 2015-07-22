@@ -21,7 +21,7 @@ public class PauseMenu : Menu
 
 	protected override void setButtons()
 	{
-		buttons = new string[] {"Resume", "Exit Game"};
+		buttons = new string[] {"Resume", "Save Game", "Load Game", "Exit Game"};
 	}
 
 	protected override void handleButton (string text)
@@ -30,12 +30,23 @@ public class PauseMenu : Menu
 		case "Resume":
 			resume ();
 			break;
+		case "Save Game":
+			saveGame();
+			break;
+		case "Load Game":
+			loadGame();
+			break;
 		case "Exit Game":
 			returnToMainMenu ();
 			break;
 		default:
 			break;
 		}
+	}
+
+	protected override void hideCurrentMenu()
+	{
+		GetComponent<PauseMenu> ().enabled = false;
 	}
 
 	/*** Private methods ***/
@@ -50,8 +61,19 @@ public class PauseMenu : Menu
 		resourceManager.menuOpen = false;
 	}
 
+	private void saveGame()
+	{
+		GetComponent<PauseMenu> ().enabled = false;
+		SaveMenu saveMenu = GetComponent<SaveMenu> ();
+		if (saveMenu) {
+			saveMenu.enabled = true;
+			saveMenu.activate ();
+		}
+	}
+
 	private void returnToMainMenu()
 	{
+		resourceManager.levelName = "";
 		Application.LoadLevel ("MainMenu");
 		Cursor.visible = true;
 	}

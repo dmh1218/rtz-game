@@ -4,6 +4,9 @@ using System.Collections.Generic;
 namespace RTS {
 	public static class resourceManager 
 	{
+		//level information
+		public static string levelName { get; set; }
+
 		//camera control constants
 		public static float scrollSpeed { get { return 25; } }
 		public static float rotateSpeed { get { return 100; } }
@@ -56,6 +59,7 @@ namespace RTS {
 		public static GameObject getWorldObject(string name)
 		{
 			return gameObjectList.getWorldObject (name);
+	
 		}
 
 		public static GameObject getPlayerObject()
@@ -83,6 +87,16 @@ namespace RTS {
 				return resourceHealthBarTextures [resType];
 			}
 			return null;
+		}
+
+		public static int getNewObjectId()
+		{
+			LevelLoader loader = (LevelLoader)GameObject.FindObjectOfType (typeof(LevelLoader));
+			if (loader) {
+				return loader.getNewObjectId ();
+			}
+
+			return -1;
 		}
 
 		public static void setResourceHealthBarTextures (Dictionary<resourceType, Texture2D> images)
