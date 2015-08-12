@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
 	public bool human;
 	public HUD hud;
 	public WorldObject selectedObject { get; set; }
-	public int startMoney, startMoneyLimit, startPower, startPowerLimit;
+	public int startMoney, startMoneyLimit, startFood, startFoodLimit;
 	public Material notAllowedMaterial, allowedMaterial;
 	public Color teamColor;
 
@@ -49,26 +49,32 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	/***PRIVATE METHODS***/
+
+	//create new resources at start of game
 	private Dictionary< resourceType, int > initResourceList()
 	{
 		Dictionary< resourceType, int > list = new Dictionary< resourceType, int > ();
 		list.Add (resourceType.Money, 0);
-		list.Add (resourceType.Power, 0);
+		list.Add (resourceType.Food, 0);
 		return list;
 	}
 
+	//add the starting resource limit for each resource at start of game
 	private void addStartResourceLimits()
 	{
 		incrementResourceLimit (resourceType.Money, startMoneyLimit);
-		incrementResourceLimit (resourceType.Power, startPowerLimit);
+		incrementResourceLimit (resourceType.Food, startFoodLimit);
 	}
 
+	//add the starting amount of resources for each resource at start of game
 	private void addStartResources()
 	{
 		addResource (resourceType.Money, startMoney);
-		addResource (resourceType.Power, startPower);
+		addResource (resourceType.Food, startFood);
 	}
 
+	//load resources details for player
 	private void loadResources(JsonTextReader reader)
 	{
 		if (reader == null) {
@@ -89,10 +95,10 @@ public class Player : MonoBehaviour
 						startMoneyLimit = (int)(System.Int64)reader.Value;
 						break;
 					case "Power":
-						startPower = (int)(System.Int64)reader.Value;
+						//startPower = (int)(System.Int64)reader.Value;
 						break;
 					case "Power_Limit":
-						startPowerLimit = (int)(System.Int64)reader.Value;
+						//startPowerLimit = (int)(System.Int64)reader.Value;
 						break;
 					default:
 						break;
@@ -104,6 +110,7 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	//load building details for player
 	private void loadBuildings(JsonTextReader reader)
 	{
 		if (reader == null) {
@@ -136,6 +143,7 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	//load unit details for player
 	private void loadUnits(JsonTextReader reader)
 	{
 		if (reader == null) {
@@ -165,18 +173,37 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	//public methods for Player.cs
+	/***PUBLIC METHODS***/
 
+	//add given amount of resources to given resource type
 	public void addResource (resourceType type, int amount)
 	{
 		resources [type] += amount;
+
+//		int currAmount = resources [type];
+//		int currLimit = resourceLimits [type];
+//
+//		if (currAmount < currLimit) {
+//			//resource limit is greater than the current resource amount
+//			resources [type] += amount;
+//			currAmount = resources [type];
+//			if (currAmount > currLimit) {
+//				resources [type] = currLimit;
+//			}
+//			//return true;
+//		} else {
+//			//stop harvesting
+//			//return false;
+//		}
 	}
 
+	//increase the limit for the given resource type by the given amount
 	public void incrementResourceLimit (resourceType type, int amount)
 	{
 		resourceLimits [type] += amount;
 	}
 
+	//create a new instance of the given unit, controlled by the player, at the spawn point and send it to the rally point
 	public void addUnit (string unitName, Vector3 spawnPoint, Vector3 rallyPoint, Quaternion rotation, Building creator)
 	{
 		Debug.Log ("add" + unitName + " to player");
@@ -344,6 +371,7 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	//check to see if all of the player's units and buildings have been destroyed
 	public bool isDead()
 	{
 		Building[] buildings = GetComponentsInChildren<Building> ();
@@ -360,6 +388,7 @@ public class Player : MonoBehaviour
 		return true;
 	}
 
+	//decrement given number of given type of resource
 	public void removeResource(resourceType type, int amount)
 	{
 		resources [type] -= amount;

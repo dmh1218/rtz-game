@@ -1,28 +1,29 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/World Object Scripts/Units/Zombie1.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/World Object Scripts/Resources/FoodCrate.cs">
     <Files>
-      <File FileName="Assets/Scripts/RTS Managers/loadManager.cs" Line="48" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Units/Survivor2.cs" Line="189" Column="11" />
+      <File FileName="Assets/Scripts/RTS Managers/loadManager.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/RTS Managers/saveManager.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/RTS Managers/playerManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/UI/SelectPlayerMenu.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Player.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/GameObjectList.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/UI/HUD.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/UI/Menu.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/RTS Managers/resourceManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/World Object Scripts/World Objects/WorldObject.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/LevelLoader.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/World Objects/WorldObject.cs" Line="364" Column="2" />
       <File FileName="Assets/Scripts/RTS Managers/workManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/UI/userInput.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/UI/userInput.cs" Line="158" Column="3" />
       <File FileName="Assets/Scripts/RTS Managers/gameManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/World Object Scripts/Buildings/Building.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/World Object Scripts/Resources/Resource.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/World Object Scripts/Units/Unit.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/World Object Scripts/Units/Survivor1.cs" Line="39" Column="1" />
-      <File FileName="Assets/Scripts/World Object Scripts/Units/Zombie1.cs" Line="43" Column="90" />
-      <File FileName="Assets/Scripts/World Object Scripts/Units/Projectile.cs" Line="38" Column="24" />
-      <File FileName="Assets/Scripts/World Object Scripts/Units/MeleeAttack.cs" Line="10" Column="4" />
+      <File FileName="Assets/Scripts/World Object Scripts/Units/Survivor1.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Units/Zombie1.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Units/Projectile.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Units/MeleeAttack.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Units/Harvester.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Enums.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Resources/Farm.cs" Line="17" Column="1" />
+      <File FileName="Assets/Scripts/World Object Scripts/Resources/FoodCrate.cs" Line="10" Column="31" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

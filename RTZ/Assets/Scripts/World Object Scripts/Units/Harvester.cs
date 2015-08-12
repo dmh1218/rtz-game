@@ -170,6 +170,7 @@ public class Harvester : Unit
 			if (!workManager.objectIsGround(hitObject)) {
 				Resource resource = hitObject.transform.parent.GetComponent<Resource> ();
 				if (resource && !resource.isEmpty ()) {
+					Debug.Log("resource");
 					startHarvest (resource);
 				}
 			} else {

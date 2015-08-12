@@ -70,10 +70,12 @@ namespace RTS {
 			switch (type) {
 			case "Money":
 				return resourceType.Money;
-			case "Power":
-				return resourceType.Power;
+//			case "Power":
+//				return resourceType.Power;
 			case "Ore":
 				return resourceType.Ore;
+			case "Food":
+				return resourceType.Food;
 			default:
 				return resourceType.Unknown;
 			}

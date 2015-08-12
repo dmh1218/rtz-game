@@ -406,6 +406,11 @@
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Turret.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\TurretProjectile.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\WarFactory.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\Crate.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\Crops.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\Farm.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\Food.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Resources\FoodCrate.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Resources\Ore.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Resources\OreDeposit.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Resources\Resource.cs" />
@@ -415,6 +420,7 @@
      <Compile Include="Assets\Scripts\World Object Scripts\Units\MeleeAttack.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Projectile.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Survivor1.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Units\Survivor2.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Tank.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\TankProjectile.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Units\Unit.cs" />

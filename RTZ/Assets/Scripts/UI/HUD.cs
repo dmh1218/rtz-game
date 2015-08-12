@@ -53,10 +53,10 @@ public class HUD : MonoBehaviour
 				resourceValues.Add (resourceType.Money, 0);
 				resourceLimits.Add (resourceType.Money, 0);
 				break;
-			case "Power":
-				resourceImages.Add (resourceType.Power, resources [i]);
-				resourceValues.Add (resourceType.Power, 0);
-				resourceLimits.Add (resourceType.Power, 0);
+			case "Food":
+				resourceImages.Add (resourceType.Food, resources [i]);
+				resourceValues.Add (resourceType.Food, 0);
+				resourceLimits.Add (resourceType.Food, 0);
 				break;
 			default:
 				break;
@@ -147,7 +147,7 @@ public class HUD : MonoBehaviour
 		DrawResourceIcon (resourceType.Money, iconLeft, textLeft, topPos);
 		iconLeft += textWidth;
 		textLeft += textWidth;
-		DrawResourceIcon (resourceType.Power, iconLeft, textLeft, topPos);
+		DrawResourceIcon (resourceType.Food, iconLeft, textLeft, topPos);
 
 		int padding = 7;
 		int buttonWidth = ordersBarWidth - 2 * padding - scrollBarWidth;
@@ -173,7 +173,9 @@ public class HUD : MonoBehaviour
 	private void DrawResourceIcon(resourceType type, int iconLeft, int textLeft, int topPos)
 	{
 		Texture2D icon = resourceImages [type];
-		string text = resourceValues [type].ToString () + "/" + resourceLimits [type].ToString ();
+//		string text = resourceValues [type].ToString () + "/" + resourceLimits [type].ToString ();
+		string text = resourceValues [type].ToString ();
+
 		GUI.DrawTexture (new Rect (iconLeft, topPos, iconWidth, iconHeight), icon);
 		GUI.Label (new Rect (textLeft, topPos, textWidth, textHeight), text);
 	}

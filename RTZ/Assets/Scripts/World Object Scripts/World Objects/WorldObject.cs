@@ -65,6 +65,8 @@ public class WorldObject : MonoBehaviour
 	
 	protected virtual void Update()
 	{
+		calculateBounds();
+
 		if (shouldMakeDecision ()) {
 			decideWhatToDo ();
 		}
@@ -250,9 +252,13 @@ public class WorldObject : MonoBehaviour
 
 	public virtual void leftMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
 	{
+		calculateBounds();
+
 		//only handle input if currently selected
 		if (currentlySelected && hitObject && !workManager.objectIsGround(hitObject)) {
+
 			WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
+
 			//clicked on another selectable object
 			if (worldObject) {
 				Resource resource = hitObject.transform.parent.GetComponent<Resource>();
@@ -462,8 +468,40 @@ public class WorldObject : MonoBehaviour
 
 	private bool targetInRange()
 	{
+
+//		Vector3 unitOriginalExtents = selectionBounds.extents;
+//		Vector3 unitNormalExtents = unitOriginalExtents;
+//		unitNormalExtents.Normalize ();
+//		float numberOfExtents = unitOriginalExtents.x / unitNormalExtents.x;
+//		int unitShift = Mathf.FloorToInt (numberOfExtents);
+
+
+//		Vector3 targetOriginalExtents = target.getSelectionBounds ().extents;
+//		Vector3 targetNormalExtents = targetOriginalExtents;
+//		targetNormalExtents.Normalize ();
+//		numberOfExtents = targetOriginalExtents.x / targetNormalExtents.x;
+//		int targetShift = Mathf.FloorToInt (numberOfExtents);
+//
+//		int shiftAmount = targetShift + unitShift;
+//
+//		Vector3 origin = transform.position;
+//		Vector3 targetLocation = target.transform.position;
+//		Vector3 direction = new Vector3 (targetLocation.x - origin.x, 0.0f, targetLocation.z - origin.z);
+//		direction.Normalize ();
+//
+//		for (int i = 0; i < shiftAmount; i++) {
+//			targetLocation -= direction;
+//		}
+//
+//		if (targetLocation.sqrMagnitude < weaponRange * weaponRange) {
+//			return true;
+//		}
+//		return false;
+
 		Vector3 targetLocation = target.transform.position;
 		Vector3 direction = targetLocation - transform.position;
+		Debug.Log ("direction: " + direction.sqrMagnitude);
+		Debug.Log ("weaponrange^2: " + weaponRange * weaponRange);
 		if (direction.sqrMagnitude < weaponRange * weaponRange) {
 			return true;
 		}
@@ -485,11 +523,39 @@ public class WorldObject : MonoBehaviour
 
 	private Vector3 findNearestAttackPosition()
 	{
+		Vector3 unitOriginalExtents = selectionBounds.extents;
+		Vector3 unitNormalExtents = unitOriginalExtents;
+		unitNormalExtents.Normalize ();
+		float numberOfExtents = unitOriginalExtents.x / unitNormalExtents.x;
+		int unitShift = Mathf.FloorToInt (numberOfExtents);
+
+		Vector3 targetOriginalExtents = target.getSelectionBounds ().extents;
+		Vector3 targetNormalExtents = targetOriginalExtents;
+		targetNormalExtents.Normalize ();
+		numberOfExtents = targetOriginalExtents.x / targetNormalExtents.x;
+		int targetShift = Mathf.FloorToInt (numberOfExtents);
+		
+		int shiftAmount = targetShift + unitShift;
+		
+		Vector3 origin = transform.position;
 		Vector3 targetLocation = target.transform.position;
-		Vector3 direction = targetLocation - transform.position;
-		float targetDistance = direction.magnitude;
+		Vector3 direction = new Vector3 (targetLocation.x - origin.x, 0.0f, targetLocation.z - origin.z);
+		direction.Normalize ();
+		
+		for (int i = 0; i < shiftAmount; i++) {
+			targetLocation -= direction;
+		}
+
+		float targetDistance = targetLocation.magnitude;
 		float distanceToTravel = targetDistance - (0.9f * weaponRange);
 		return Vector3.Lerp (transform.position, targetLocation, distanceToTravel / targetDistance);
+
+
+//		Vector3 targetLocation = target.transform.position;
+//		Vector3 direction = targetLocation - transform.position;
+//		float targetDistance = direction.magnitude;
+//		float distanceToTravel = targetDistance - (0.9f * weaponRange);
+//		return Vector3.Lerp (transform.position, targetLocation, distanceToTravel / targetDistance);
 	}
 
 	private void performAttack()

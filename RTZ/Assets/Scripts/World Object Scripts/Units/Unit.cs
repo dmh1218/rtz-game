@@ -7,14 +7,19 @@ public class Unit : WorldObject
 {
 	protected bool moving;
 	protected bool rotating;
+	protected bool finishedMove = false;
 
 	private Vector3 destination;
 	private Quaternion targetRotation;
 	private GameObject destinationTarget;
 	private int loadedDestinationTargetId;
 
+	//public variables
 	public float rotateSpeed;
 	public float moveSpeed;
+	public int foodCost;
+	public float decreaseFoodTime;
+	public NavMeshAgent agent;
 
 	/*** Game Engine methods, all can be overridden by subclass ***/
 
@@ -27,6 +32,9 @@ public class Unit : WorldObject
 	{
 		base.Start ();
 
+		InvokeRepeating ("decreaseFood", decreaseFoodTime, decreaseFoodTime);
+		agent = GetComponent<NavMeshAgent> ();
+
 		if (player && loadedSavedValues && loadedDestinationTargetId >= 0) {
 			destinationTarget = player.getObjectForId (loadedDestinationTargetId).gameObject;
 		}
@@ -35,6 +43,7 @@ public class Unit : WorldObject
 	protected override void Update()
 	{
 		base.Update ();
+
 		if (rotating) {
 			turnToTarget ();
 		} else if (moving) {
@@ -119,28 +128,13 @@ public class Unit : WorldObject
 		}
 	}
 
-//	public override void mouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
-//	{
-//		base.mouseClick (hitObject, hitPoint, controller);
-//		//only handle input if owned by a human player and currently selected
-//		if (player && player.human && currentlySelected) {
-//			if (hitObject.name == "Ground" && hitPoint != resourceManager.InvalidPosition) {
-//				float x = hitPoint.x;
-//				//make sure that the unit stays on top of the surface it is on
-//				float y = hitPoint.y + player.selectedObject.transform.position.y;
-//				float z = hitPoint.z;
-//				Vector3 destination = new Vector3 (x, y, z);
-//				startMove (destination);
-//			}
-//		}
-//	}
-
 	public override void rightMouseClick(GameObject hitObject, Vector3 hitPoint, Player controller)
 	{
 		base.rightMouseClick (hitObject, hitPoint, controller);
 
 		if (player && player.human && currentlySelected) {
 			bool clickedOnEmptyResource = false;
+
 			if (hitObject.transform.parent) {
 				Resource resource = hitObject.transform.parent.GetComponent<Resource>();
 				if (resource && resource.isEmpty()) {
@@ -154,6 +148,7 @@ public class Unit : WorldObject
 				float y = hitPoint.y + player.selectedObject.transform.position.y;
 				float z = hitPoint.z;
 				Vector3 destination = new Vector3 (x, y, z);
+				agent.SetDestination(destination);
 				startMove (destination);
 			}
 		}
@@ -163,7 +158,6 @@ public class Unit : WorldObject
 
 	public virtual void startMove(Vector3 destination)
 	{
-
 		this.destination = destination;
 		destinationTarget = null;
 		targetRotation = Quaternion.LookRotation (destination - transform.position);
@@ -228,21 +222,35 @@ public class Unit : WorldObject
 			destination -= direction;
 		}
 		destination.y = destinationTarget.transform.position.y;
+
 		destinationTarget = null;
 	}
 
 	private void makeMove()
 	{
-		transform.position = Vector3.MoveTowards (transform.position, destination, Time.deltaTime * moveSpeed);
+		agent.destination = destination;
 		if (transform.position == destination) {
+			Debug.Log("reached destination");
 			moving = false;
 			movingIntoPosition = false;
 		}
 		calculateBounds ();
 	}
 
+	private void moveToObject()
+	{
+		Debug.Log (destinationTarget.transform.position.magnitude);
+		agent.destination = destinationTarget.transform.position;
+		makeMove ();
+	}
+
 	public virtual void setBuilding(Building creator)
 	{
 		//specific initialization for a unit can be specified here
+	}
+
+	private void decreaseFood()
+	{
+		player.removeResource (resourceType.Food, foodCost);
 	}
 }

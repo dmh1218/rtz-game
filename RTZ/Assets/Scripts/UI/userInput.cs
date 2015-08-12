@@ -157,6 +157,7 @@ public class userInput : MonoBehaviour
 					} else if (!workManager.objectIsGround(hitObject)) {
 						WorldObject worldObject = hitObject.transform.parent.GetComponent<WorldObject> ();
 						if (worldObject) {
+							Debug.Log("hit world object");
 							//we already know the player has no selected object
 							player.selectedObject = worldObject;
 							worldObject.SetSelection (true, player.hud.getPlayingArea());
