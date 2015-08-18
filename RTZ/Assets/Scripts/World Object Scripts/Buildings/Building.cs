@@ -122,13 +122,23 @@ public class Building : WorldObject
 		} 
 	}
 
+//	protected void rightArrow()
+//	{
+//
+//	}
+//
+//	protected void leftArrow()
+//	{
+//
+//	}
+
 	protected void createUnit(string unitName)
 	{
 		GameObject unit = resourceManager.getUnit (unitName);
 		Unit unitObject = unit.GetComponent<Unit> ();
 
 		if (player && unitObject) {
-			player.removeResource (resourceType.Money, unitObject.cost);
+			player.removeResource (resourceType.Food, unitObject.cost);
 		}
 
 		buildQueue.Enqueue (unitName);
@@ -214,7 +224,7 @@ public class Building : WorldObject
 	public void sell()
 	{
 		if (player) {
-			player.addResource (resourceType.Money, sellValue);
+			player.addResource (resourceType.Salvage, sellValue);
 		}
 		if (currentlySelected) {
 			SetSelection (false, playingArea);

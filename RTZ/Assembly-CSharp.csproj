@@ -400,6 +400,7 @@
      <Compile Include="Assets\Scripts\Victory Conditions\Conquest.cs" />
      <Compile Include="Assets\Scripts\Victory Conditions\Survival.cs" />
      <Compile Include="Assets\Scripts\VictoryConditions.cs" />
+     <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Barricade.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Building.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Buildings.cs" />
      <Compile Include="Assets\Scripts\World Object Scripts\Buildings\Refinery.cs" />

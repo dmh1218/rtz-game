@@ -68,8 +68,10 @@ namespace RTS {
 		public static resourceType getResourceType(string type)
 		{
 			switch (type) {
-			case "Money":
-				return resourceType.Money;
+			case "Salvage":
+				return resourceType.Salvage;
+//			case "Money":
+//				return resourceType.Money;
 //			case "Power":
 //				return resourceType.Power;
 			case "Ore":

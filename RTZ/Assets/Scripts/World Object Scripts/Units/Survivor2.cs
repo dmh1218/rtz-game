@@ -38,7 +38,7 @@ public class Survivor2 : Unit
 
 		currentGear = currentWeapon;
 
-		actions = new string[] {"Refinery", "WarFactory", "Turret"};
+		actions = new string[] {"Refinery", "Barricade", "Turret"};
 
 
 		if (loadedSavedValues) {

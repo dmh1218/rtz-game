@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
 	public bool human;
 	public HUD hud;
 	public WorldObject selectedObject { get; set; }
-	public int startMoney, startMoneyLimit, startFood, startFoodLimit;
+	public int startSalvage, startSalvageLimit, startFood, startFoodLimit;
 	public Material notAllowedMaterial, allowedMaterial;
 	public Color teamColor;
 
@@ -55,7 +55,7 @@ public class Player : MonoBehaviour
 	private Dictionary< resourceType, int > initResourceList()
 	{
 		Dictionary< resourceType, int > list = new Dictionary< resourceType, int > ();
-		list.Add (resourceType.Money, 0);
+		list.Add (resourceType.Salvage, 0);
 		list.Add (resourceType.Food, 0);
 		return list;
 	}
@@ -63,14 +63,14 @@ public class Player : MonoBehaviour
 	//add the starting resource limit for each resource at start of game
 	private void addStartResourceLimits()
 	{
-		incrementResourceLimit (resourceType.Money, startMoneyLimit);
+		incrementResourceLimit (resourceType.Salvage, startSalvageLimit);
 		incrementResourceLimit (resourceType.Food, startFoodLimit);
 	}
 
 	//add the starting amount of resources for each resource at start of game
 	private void addStartResources()
 	{
-		addResource (resourceType.Money, startMoney);
+		addResource (resourceType.Salvage, startSalvage);
 		addResource (resourceType.Food, startFood);
 	}
 
@@ -89,10 +89,10 @@ public class Player : MonoBehaviour
 				} else {
 					switch(currValue) {
 					case "Money":
-						startMoney = (int)(System.Int64)reader.Value;
+						//startSalvage = (int)(System.Int64)reader.Value;
 						break;
 					case "Money_Limit":
-						startMoneyLimit = (int)(System.Int64)reader.Value;
+						//startSalvageLimit = (int)(System.Int64)reader.Value;
 						break;
 					case "Power":
 						//startPower = (int)(System.Int64)reader.Value;
@@ -291,6 +291,14 @@ public class Player : MonoBehaviour
 		return canPlace;
 	}
 
+	public void rotateBuilding()
+	{
+		Buildings buildings = GetComponentInChildren<Buildings> ();
+		if (buildings) {
+			tempBuilding.transform.Rotate(Vector3.down * 90f);
+		}
+	}
+
 	public void startConstruction()
 	{
 		findingPlacement = false;
@@ -302,7 +310,7 @@ public class Player : MonoBehaviour
 		tempBuilding.setColliders (true);
 		tempCreator.setBuilding (tempBuilding);
 		tempBuilding.startConstruction ();
-		removeResource (resourceType.Money, tempBuilding.cost);
+		removeResource (resourceType.Salvage, tempBuilding.cost);
 	}
 
 	public void cancelBuildingPlacement()

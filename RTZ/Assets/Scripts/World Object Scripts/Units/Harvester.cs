@@ -243,7 +243,7 @@ public class Harvester : Unit
 			currentLoad -= deposit;
 			resourceType depositType = harvestType;
 			if (harvestType == resourceType.Ore) {
-				depositType = resourceType.Money;
+				depositType = resourceType.Salvage;
 			}
 			player.addResource (depositType, deposit);
 		}
